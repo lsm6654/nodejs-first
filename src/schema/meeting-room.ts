@@ -11,7 +11,7 @@ import {
 
 import {Schema} from "mongoose";
 import {addMeetingRoom, getMeetingRoomByName, getMeetingRooms, MeetingRoom, MeetingRoomModel} from "../db/meetingRoom";
-import {getReservationByTimeBetween, getReservationsByStartTimeAfter} from "../db/reservation";
+import {getReservationByTimeBetween} from "../db/reservation";
 
 export const meetingRoomType = new GraphQLObjectType({
     name: 'MeetingRoom',
@@ -44,14 +44,17 @@ const query = {
 
             return Promise.all([reservations, meetingRooms])
                 .then(arr => {
-                    let data = arr[0].filter(reservation => {
-                        const mRoom: any = reservation.meetingRoomId;
-                        return arr[1].filter(meetingRoom => mRoom._id == meetingRoom._id);
+                    const roomIds = arr[0].map(r => {
+                        const room: any = r.meetingRoomId;
+                        return room._id;
                     });
 
-                    console.log(data);
-                    return data;
-                });;
+                    const notExistsMeetingRooms = arr[1].filter(meetingRoom => {
+                        return roomIds.some(x => x != meetingRoom.id);
+                    });
+
+                    return notExistsMeetingRooms;
+                });
         }
     },
     meetingRooms: {
