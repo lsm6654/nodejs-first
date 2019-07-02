@@ -11,7 +11,7 @@ import {
 
 import {Schema} from "mongoose";
 import {addMeetingRoom, getMeetingRoomByName, getMeetingRooms, MeetingRoom, MeetingRoomModel} from "../db/meetingRoom";
-import {getReservationsByStartTimeAfter} from "../db/reservation";
+import {getReservationByTimeBetween, getReservationsByStartTimeAfter} from "../db/reservation";
 
 export const meetingRoomType = new GraphQLObjectType({
     name: 'MeetingRoom',
@@ -38,9 +38,20 @@ const query = {
                 type: GraphQLString
             },
         },
-        resolve: (startDate: string) => {
-            const date = new Date(startDate);
-            //getReservationByTimeBetween()
+        resolve: (_: any, {startDate, endDate}: any) => {
+            const reservations = getReservationByTimeBetween(new Date(startDate), new Date(endDate)).populate('meetingRoomId').exec();
+            const meetingRooms = getMeetingRooms();
+
+            return Promise.all([reservations, meetingRooms])
+                .then(arr => {
+                    let data = arr[0].filter(reservation => {
+                        const mRoom: any = reservation.meetingRoomId;
+                        return arr[1].filter(meetingRoom => mRoom._id == meetingRoom._id);
+                    });
+
+                    console.log(data);
+                    return data;
+                });;
         }
     },
     meetingRooms: {

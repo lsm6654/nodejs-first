@@ -29,7 +29,7 @@ export function getReservationById(id: Schema.Types.ObjectId) {
 }
 
 export function getReservationByTimeBetween(startTime: Date, endTime: Date) {
-    return ReservationModel.findOne({'startTime': {$gte: startTime}}, {'endTime': {$lte: endTime}});
+    return ReservationModel.find({'startTime': {$gte: startTime}} && {'endTime': {$lte: endTime}});
 }
 
 export function getReservationsByStartTimeAfter(date: Date) {
