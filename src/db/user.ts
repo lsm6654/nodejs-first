@@ -29,8 +29,7 @@ export function getUserByName(name: string) {
 }
 
 export function addUser(input: User) {
-    const rec = UserModel.create(input);
-    return rec;
+    return UserModel.create(input);
 }
 
 export function removeUser(id: string) {

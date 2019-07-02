@@ -1,16 +1,7 @@
-import {
-    GraphQLEnumType,
-    GraphQLInterfaceType,
-    GraphQLObjectType,
-    GraphQLList,
-    GraphQLNonNull,
-    GraphQLSchema,
-    GraphQLString,
-    GraphQLInt
-} from 'graphql';
+import {GraphQLInt, GraphQLList, GraphQLObjectType, GraphQLString} from 'graphql';
 
 import {Schema} from "mongoose";
-import {addMeetingRoom, getMeetingRoomByName, getMeetingRooms, MeetingRoom, MeetingRoomModel} from "../db/meetingRoom";
+import {getMeetingRooms, MeetingRoom} from "../db/meetingRoom";
 import {getReservationByTimeBetween} from "../db/reservation";
 
 export const meetingRoomType = new GraphQLObjectType({
@@ -57,41 +48,9 @@ const query = {
                 });
         }
     },
-    meetingRooms: {
-        type: new GraphQLList(meetingRoomType),
-        args: {
-            limit: {
-                description: 'limit items in the results',
-                type: GraphQLInt
-            }
-        },
-        resolve: (limit: number) => getMeetingRooms(limit)
-    },
-    meetingRoomByName: {
-        type: meetingRoomType,
-        args: {
-            name: {
-                description: 'find by meetingroom name',
-                type: GraphQLString
-            }
-        },
-        resolve: (name: string) => getMeetingRoomByName(name)
-    }
 };
 
 const mutation = {
-    addMeetingRoom: {
-        type: meetingRoomType,
-        args: {
-            name: {
-                type: new GraphQLNonNull(GraphQLString)
-            },
-            size: {
-                type: new GraphQLNonNull(GraphQLInt)
-            },
-        },
-        resolve: (obj: any, input: any) => addMeetingRoom(new MeetingRoomModel(input))
-    }
 };
 
 export const MeetingRoomSchema = {

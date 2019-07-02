@@ -1,22 +1,13 @@
-import {
-    GraphQLEnumType,
-    GraphQLInterfaceType,
-    GraphQLObjectType,
-    GraphQLList,
-    GraphQLNonNull,
-    GraphQLSchema,
-    GraphQLString,
-    GraphQLInt
-} from 'graphql';
+import {GraphQLList, GraphQLNonNull, GraphQLObjectType, GraphQLString} from 'graphql';
 
 import {Schema} from "mongoose";
 import {GraphQLISODateTime} from "type-graphql";
 import {
-    ReservationModel,
     addReservation,
-    getReservationByTimeBetween,
-    getReservations,
-    getReservationsByStartTimeAfter
+    getReservationByMeetingRoomIdAndTimeBetween,
+    getReservationsByStartTimeAfter,
+    removeReservation,
+    ReservationModel
 } from "../db/reservation";
 import {userType} from "./user";
 import {meetingRoomType} from "./meeting-room";
@@ -39,40 +30,36 @@ const reservationType = new GraphQLObjectType({
     }),
 });
 
+const reservationMutationType = new GraphQLObjectType({
+    name: 'ReservationMutation',
+    fields: () => ({
+        userId: {
+            type: GraphQLString,
+        },
+        meetingRoomId: {
+            type: GraphQLString,
+        },
+        startTime: {
+            type: GraphQLISODateTime,
+        },
+        endTime: {
+            type: GraphQLISODateTime,
+        }
+    }),
+});
+
 const query = {
     reservationsThisWeek: {
         type: new GraphQLList(reservationType),
         resolve: () => {
             const curr = new Date();
             const first = curr.getDate() - curr.getDay();
-            const firstday = new Date(curr.setDate(first));
-            //TODO date 수정.
-            return getReservationsByStartTimeAfter(firstday);
+            const firstdayThisWeek = new Date(curr.setDate(first));
+            const firstDayThisWeekWithTime = new Date(curr.getFullYear(), firstdayThisWeek.getMonth(), firstdayThisWeek.getDay());
+
+            return getReservationsByStartTimeAfter(firstDayThisWeekWithTime);
         }
     },
-
-    reservations: {
-        type: new GraphQLList(reservationType),
-        args: {
-            limit: {
-                description: 'limit items in the results',
-                type: GraphQLInt
-            }
-        },
-        resolve: (limit: number) => getReservations(limit)
-    },
-    reservationByTimeBetween: {
-        type: reservationType,
-        args: {
-            startTime: {
-                type: GraphQLISODateTime
-            },
-            endTime: {
-                type: GraphQLISODateTime
-            }
-        },
-        resolve: (startTime: Date, endTime: Date) => getReservationByTimeBetween(startTime, endTime)
-    }
 };
 
 const mutation = {
@@ -92,7 +79,25 @@ const mutation = {
                 type: new GraphQLNonNull(GraphQLISODateTime)
             }
         },
-        resolve: (obj: any, input: any) => addReservation(new ReservationModel(input))
+        resolve: (obj: any, input: any) => {
+            const reservation = addReservation(new ReservationModel(input));
+
+            const promise = reservation.then( r => {
+                return getReservationByMeetingRoomIdAndTimeBetween(r.meetingRoomId, r.startTime, r.endTime);
+            }).then(r => {
+                if (r.length > 1) {
+                    throw r;
+                }
+                return reservation;
+            }).then(null, r => {
+                const lastIndex = r.length -1;
+                return removeReservation(r[lastIndex]._id);
+            }).then( () => {
+                throw "duplicated reservation error occurred"
+            });
+
+            return promise;
+        }
     }
 };
 

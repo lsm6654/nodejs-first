@@ -28,8 +28,7 @@ export function getMeetingRoomByName(name: string) {
 }
 
 export function addMeetingRoom(input: MeetingRoom) {
-    const rec = MeetingRoomModel.create(input);
-    return rec;
+    return MeetingRoomModel.create(input);
 }
 
 export function removeMeetingRoom(id: string) {

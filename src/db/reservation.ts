@@ -2,8 +2,8 @@ import { Schema, model, Document } from 'mongoose';
 import * as mongoose from "mongoose";
 
 export interface Reservation {
-    userId: mongoose.Types.ObjectId;
-    meetingRoomId: mongoose.Types.ObjectId;
+    userId: Schema.Types.ObjectId;
+    meetingRoomId: Schema.Types.ObjectId;
     startTime: Date;
     endTime: Date;
 }
@@ -32,13 +32,16 @@ export function getReservationByTimeBetween(startTime: Date, endTime: Date) {
     return ReservationModel.find({'startTime': {$gte: startTime}} && {'endTime': {$lte: endTime}});
 }
 
+export function getReservationByMeetingRoomIdAndTimeBetween(meetingRoomId: Schema.Types.ObjectId, startTime: Date, endTime: Date) {
+    return ReservationModel.find({ $and: [{'meetingRoomId' : meetingRoomId}, {'startTime': {$gte: startTime}}, {'endTime': {$lte: endTime}}]});
+}
+
 export function getReservationsByStartTimeAfter(date: Date) {
-    return ReservationModel.find({'startTime': {$gte: date}}).populate('userId').populate('meetingRoomId').exec();
+    return ReservationModel.find({'startTime': {$gte: date}}).populate('userId').populate('meetingRoomId');
 }
 
 export function addReservation(input: Reservation) {
-    const rec = ReservationModel.create(input);
-    return rec;
+    return ReservationModel.create(input);
 }
 
 export function removeReservation(id: string) {
