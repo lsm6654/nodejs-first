@@ -3,7 +3,7 @@ import {
     GraphQLObjectType,
 } from 'graphql';
 
-import { UserSchema } from './user';
+import {UserSchema} from './user';
 import {MeetingRoomSchema} from "./meeting-room";
 import {ReservationSchema} from "./reservation";
 

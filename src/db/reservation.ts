@@ -37,7 +37,7 @@ export function getReservationByMeetingRoomIdAndTimeBetween(meetingRoomId: Schem
 }
 
 export function getReservationsByStartTimeAfter(date: Date) {
-    return ReservationModel.find({'startTime': {$gte: date}}).populate('userId').populate('meetingRoomId');
+    return ReservationModel.find({'startTime': {$gte: date}});
 }
 
 export function addReservation(input: Reservation) {

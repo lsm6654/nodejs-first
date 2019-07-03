@@ -30,24 +30,6 @@ const reservationType = new GraphQLObjectType({
     }),
 });
 
-const reservationMutationType = new GraphQLObjectType({
-    name: 'ReservationMutation',
-    fields: () => ({
-        userId: {
-            type: GraphQLString,
-        },
-        meetingRoomId: {
-            type: GraphQLString,
-        },
-        startTime: {
-            type: GraphQLISODateTime,
-        },
-        endTime: {
-            type: GraphQLISODateTime,
-        }
-    }),
-});
-
 const query = {
     reservationsThisWeek: {
         type: new GraphQLList(reservationType),
@@ -57,7 +39,7 @@ const query = {
             const firstdayThisWeek = new Date(curr.setDate(first));
             const firstDayThisWeekWithTime = new Date(curr.getFullYear(), firstdayThisWeek.getMonth(), firstdayThisWeek.getDay());
 
-            return getReservationsByStartTimeAfter(firstDayThisWeekWithTime);
+            return getReservationsByStartTimeAfter(firstDayThisWeekWithTime).populate('userId').populate('meetingRoomId').exec();
         }
     },
 };
@@ -86,14 +68,12 @@ const mutation = {
                 return getReservationByMeetingRoomIdAndTimeBetween(r.meetingRoomId, r.startTime, r.endTime);
             }).then(r => {
                 if (r.length > 1) {
-                    throw r;
+                    const lastIndex = r.length -1;
+                    throw removeReservation(r[lastIndex]._id);
                 }
                 return reservation;
-            }).then(null, r => {
-                const lastIndex = r.length -1;
-                return removeReservation(r[lastIndex]._id);
-            }).then( () => {
-                throw "duplicated reservation error occurred"
+            }).catch(function (e) {
+                throw "duplicated reservation error occurred";
             });
 
             return promise;

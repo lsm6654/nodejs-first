@@ -1,7 +1,7 @@
 class TimeUtils {
     private static readonly time_formmater = '^(AM|PM) (0[0-9]|1[0-2]|[0-9]):[0-5][0-9]:[0-5][0-9]$';
 
-    static testFunction(inputTime: string, n: number, timePattern = this.time_formmater): string {
+    static transformTimeFormat(inputTime: string, n: number, timePattern = this.time_formmater): string {
         if (!new RegExp(timePattern).test(inputTime)) {
             throw "IllegalArgumentException";
         }
@@ -67,17 +67,17 @@ export class Time {
     }
 }
 
-console.assert(TimeUtils.testFunction("PM 09:21:31", 0) === "21:21:31");
-console.assert(TimeUtils.testFunction("PM 09:21:31", 200000) === "04:54:51");
+console.assert(TimeUtils.transformTimeFormat("PM 09:21:31", 0) === "21:21:31");
+console.assert(TimeUtils.transformTimeFormat("PM 09:21:31", 200000) === "04:54:51");
 
-console.assert(TimeUtils.testFunction("AM 09:21:31", 1) === "09:21:32");
-console.assert(TimeUtils.testFunction("AM 09:21:31", 61) === "09:22:32");
-console.assert(TimeUtils.testFunction("AM 09:21:31", 3661) === "10:22:32");
+console.assert(TimeUtils.transformTimeFormat("AM 09:21:31", 1) === "09:21:32");
+console.assert(TimeUtils.transformTimeFormat("AM 09:21:31", 61) === "09:22:32");
+console.assert(TimeUtils.transformTimeFormat("AM 09:21:31", 3661) === "10:22:32");
 
-console.assert(TimeUtils.testFunction("PM 09:21:31", 1) === "21:21:32");
-console.assert(TimeUtils.testFunction("PM 09:21:31", 61) === "21:22:32");
-console.assert(TimeUtils.testFunction("PM 09:21:31", 3661) === "22:22:32");
+console.assert(TimeUtils.transformTimeFormat("PM 09:21:31", 1) === "21:21:32");
+console.assert(TimeUtils.transformTimeFormat("PM 09:21:31", 61) === "21:22:32");
+console.assert(TimeUtils.transformTimeFormat("PM 09:21:31", 3661) === "22:22:32");
 
-console.assert(TimeUtils.testFunction("PM 09:21:31", 29) === "21:22:00");
-console.assert(TimeUtils.testFunction("PM 09:21:31", 2309) === "22:00:00");
-console.assert(TimeUtils.testFunction("PM 09:21:31", 9509) === "00:00:00");
+console.assert(TimeUtils.transformTimeFormat("PM 09:21:31", 29) === "21:22:00");
+console.assert(TimeUtils.transformTimeFormat("PM 09:21:31", 2309) === "22:00:00");
+console.assert(TimeUtils.transformTimeFormat("PM 09:21:31", 9509) === "00:00:00");

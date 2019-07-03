@@ -1,5 +1,4 @@
-import {Schema, model, Document, Types} from 'mongoose';
-import * as mongoose from "mongoose";
+import {Schema, model, Document} from 'mongoose';
 
 export interface User {
     name: string;
@@ -20,7 +19,7 @@ export function getUsers(limit = 100) {
     return UserModel.find().limit(limit);
 }
 
-export function getUserById(id: Types.ObjectId) {
+export function getUserById(id: Schema.Types.ObjectId) {
     return UserModel.findOne({ _id: id });
 }
 
